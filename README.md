@@ -36,7 +36,7 @@ At session start, a hook queries MongoDB and injects the top 3 relevant memories
 ## Setup
 
 ```bash
-git clone <this repo>
+git clone https://github.com/xargom/writerlore
 cd writerlore
 bash setup.sh
 ```
