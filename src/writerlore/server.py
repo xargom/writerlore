@@ -49,6 +49,12 @@ def writerlore_recall(
     limit: int = 5,
 ) -> list:
     """Recall relevant editorial memories via semantic search, optionally filtered by repo and/or component."""
+    limit = min(max(1, limit), 50)
+    if repo and len(repo) > 100:
+        raise ValueError("repo exceeds maximum length")
+    if component and len(component) > 100:
+        raise ValueError("component exceeds maximum length")
+
     vector = embed_query(query)
 
     vector_search: dict = {

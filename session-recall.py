@@ -83,8 +83,8 @@ def main():
                     content = content[:117] + "..."
                 print(f"     • {content}")
 
-    except Exception:
-        pass
+    except Exception as e:
+        sys.stderr.write(f"WriterLore session recall failed: {e}\n")
 
 
 if __name__ == "__main__":

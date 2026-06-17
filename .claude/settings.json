@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "writerlore": {
+      "command": "/Users/javierarmendariz/writerlore/run-server.sh",
+      "args": [],
+      "env": {}
+    }
+  }
+}
