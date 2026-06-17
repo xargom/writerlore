@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 """Surface relevant WriterLore memories at session start."""
-import json
 import os
 import subprocess
 import sys
@@ -31,18 +30,8 @@ def get_ticket():
     return None
 
 
-def load_env():
-    config_path = os.path.expanduser("~/.mcp.json")
-    with open(config_path) as f:
-        config = json.load(f)
-    env = config["mcpServers"]["writerlore"]["env"]
-    os.environ["WRITERLORE_MONGO_URI"] = env["WRITERLORE_MONGO_URI"]
-
-
 def main():
     try:
-        load_env()
-
         sys.path.insert(0, os.path.join(os.path.dirname(__file__), "src"))
         from writerlore.db import get_collection
         from writerlore.embeddings import embed_query
