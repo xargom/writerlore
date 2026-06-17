@@ -26,11 +26,18 @@ echo ""
 read -r -p "   WRITERLORE_MONGO_URI: " MONGO_URI
 echo ""
 
-# Add or update the writerlore entry using Python's json module
-python3 - <<EOF
+# Add or update the writerlore entry using Python's json module.
+# Variables are passed via env to avoid bash string interpolation into JSON values.
+SETUP_MONGO_URI="$MONGO_URI" \
+SETUP_MCP_CONFIG="$MCP_CONFIG" \
+SETUP_WRITERLORE_DIR="$WRITERLORE_DIR" \
+python3 - <<'EOF'
 import json, os
 
-path = os.path.expanduser("$MCP_CONFIG")
+mongo_uri = os.environ["SETUP_MONGO_URI"]
+path = os.environ["SETUP_MCP_CONFIG"]
+writerlore_dir = os.environ["SETUP_WRITERLORE_DIR"]
+
 config = {}
 if os.path.exists(path):
     with open(path) as f:
@@ -38,10 +45,10 @@ if os.path.exists(path):
 
 config.setdefault("mcpServers", {})["writerlore"] = {
     "type": "stdio",
-    "command": "$WRITERLORE_DIR/.venv/bin/python",
+    "command": f"{writerlore_dir}/.venv/bin/python",
     "args": ["-m", "writerlore.server"],
     "env": {
-        "WRITERLORE_MONGO_URI": "$MONGO_URI",
+        "WRITERLORE_MONGO_URI": mongo_uri,
     },
 }
 
@@ -54,18 +61,22 @@ EOF
 echo ""
 echo "3. Registering session hook in $CLAUDE_SETTINGS"
 
-python3 - <<EOF
+SETUP_CLAUDE_SETTINGS="$CLAUDE_SETTINGS" \
+SETUP_WRITERLORE_DIR="$WRITERLORE_DIR" \
+python3 - <<'EOF'
 import json, os
 
-path = os.path.expanduser("$CLAUDE_SETTINGS")
+path = os.environ["SETUP_CLAUDE_SETTINGS"]
+writerlore_dir = os.environ["SETUP_WRITERLORE_DIR"]
+
 if not os.path.exists(path):
-    print("   $CLAUDE_SETTINGS not found — skipping.")
+    print(f"   {path} not found — skipping.")
     exit(0)
 
 with open(path) as f:
     config = json.load(f)
 
-hook_cmd = "$WRITERLORE_DIR/.venv/bin/python $WRITERLORE_DIR/session-recall.py"
+hook_cmd = f"{writerlore_dir}/.venv/bin/python {writerlore_dir}/session-recall.py"
 hook_entry = {"type": "command", "command": hook_cmd}
 
 sessions = config.setdefault("hooks", {}).setdefault("SessionStart", [])

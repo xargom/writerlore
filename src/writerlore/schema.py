@@ -2,6 +2,7 @@ from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from typing import Optional
 import subprocess
+import sys
 
 
 def _current_repo() -> str:
@@ -11,7 +12,8 @@ def _current_repo() -> str:
             stderr=subprocess.DEVNULL
         ).decode().strip()
         return remote.split("/")[-1].replace(".git", "")
-    except subprocess.CalledProcessError:
+    except subprocess.CalledProcessError as e:
+        sys.stderr.write(f"WriterLore: could not detect repo: {e}\n")
         return "unknown"
 
 
@@ -25,7 +27,8 @@ def _current_ticket() -> Optional[str]:
         if len(parts) >= 2 and parts[0].isupper():
             return f"{parts[0]}-{parts[1]}"
         return None
-    except subprocess.CalledProcessError:
+    except subprocess.CalledProcessError as e:
+        sys.stderr.write(f"WriterLore: could not detect ticket: {e}\n")
         return None
 
 
